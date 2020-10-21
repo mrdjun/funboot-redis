@@ -1,0 +1,68 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      master:
+        url: jdbc:mysql://192.168.52.128:3306/fun_base?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+        username: ENC(DCL3UoXlX5sdRII62q104A==)
+        password: ENC(3YJyB6XSvyzEbdtIZbAxRiiZsBn6+pTu1QCn51qTyLU=)
+      slave:
+        enabled: true
+        url: jdbc:mysql://192.168.52.128:3306/fun_prod?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+        username: ENC(DCL3UoXlX5sdRII62q104A==)
+        password: ENC(3YJyB6XSvyzEbdtIZbAxRiiZsBn6+pTu1QCn51qTyLU=)
+      initialSize: 5
+      minIdle: 10
+      maxActive: 20
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      maxEvictableIdleTimeMillis: 900000
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        allow:
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin
+      filter:
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+  servlet:
+    multipart:
+      max-file-size: 2GB
+      max-request-size: 1GB
+      enabled: true
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password: ENC(PJx7qkCHvgKAOPW4kU2Fdi2ttfgP2D8e/RowJerFh1A=)
+    jedis:
+      pool:
+        min-idle: 8
+        max-idle: 500
+        max-active: 2000
+        max-wait: 10000
+    timeout: 300
+
+mybatis:
+  typeAliasesPackage: com.fun.project
+  mapperLocations: classpath:mybatis/**/*Mapper.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+jasypt:
+  encryptor:
+    password: fun-boot

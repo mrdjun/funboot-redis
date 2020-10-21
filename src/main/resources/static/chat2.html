@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket示例</title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+</head>
+<body>
+当前用户ID为4，发送消息给ID为3的用户
+<hr/>
+当前订阅的话题是: chat
+<hr/>
+<input id="text" type="text" value="hello"/>
+<button onclick="send()">发送消息</button>
+<hr/>
+<button onclick="closeWebSocket()">关闭WebSocket连接</button>
+<button onclick="openWebSocket()">打开WebSocket连接</button>
+<hr/>
+<div id="message"></div>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+<script type="text/javascript">
+    var websocket = null;
+    var userId = 4;
+    var toUserId = 3;
+
+    //判断当前浏览器是否支持WebSocket
+    if ('WebSocket' in window) {
+        websocket = new WebSocket("ws://localhost:8886/chat/" + userId);
+    } else {
+        alert('当前浏览器不支持websocket哦！')
+    }
+
+    //连接发生错误的回调方法
+    websocket.onerror = function () {
+        setMessageInnerHTML("WebSocket连接发生错误");
+    };
+
+    //连接成功建立的回调方法
+    websocket.onopen = function () {
+        setMessageInnerHTML("WebSocket连接成功");
+    };
+
+    //接收到消息的回调方法
+    websocket.onmessage = function (event) {
+        setMessageInnerHTML(event.data);
+    };
+
+    //连接关闭的回调方法
+    websocket.onclose = function () {
+        setMessageInnerHTML("后台已经关闭了这个连接");
+    };
+
+    //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+    window.onbeforeunload = function () {
+        closeWebSocket();
+    };
+
+    //将消息显示在网页上
+    function setMessageInnerHTML(innerHTML) {
+        document.getElementById('message').innerHTML += innerHTML + '<br/>';
+    }
+
+    //关闭WebSocket连接
+    function closeWebSocket() {
+        websocket.close();
+        setMessageInnerHTML("WebSocket连接关闭");
+    }
+
+    //open WebSocket连接
+    function openWebSocket() {
+        if (websocket.readyState === 1 || websocket.readyState === 0) {
+            closeWebSocket();
+            setMessageInnerHTML("重新打开连接");
+        }
+        //判断当前浏览器是否支持WebSocket
+        if ('WebSocket' in window) {
+            //不存在而且浏览器支持，重新打开连接
+            websocket = new WebSocket("ws://127.0.0.1:8886/chat/" + userId);
+            setMessageInnerHTML("已经重新打开了");
+        } else {
+            alert('当前浏览器不支持websocket')
+        }
+    }
+
+    //发送消息
+    function send() {
+        var message = document.getElementById('text').value;
+        if (message !== null || message !== '') {
+            $.ajax({
+                type: 'post',
+                url: 'http://localhost:8886/chat/to/' + toUserId,
+                async: false,
+                cache: false,
+                data: {
+                    'message': message
+                },
+                success: function (res) {
+                    if (res === 200)
+                        setMessageInnerHTML(userId + "发送给" + toUserId + "消息,消息内容为---->>" + message + '<br/>')
+                    else
+                        setMessageInnerHTML(res.message)
+                },
+                error: function (xhr) {
+                    setMessageInnerHTML(xhr)
+                }
+            });
+        }
+    }
+
+</script>
+</body>
+</html>
+
